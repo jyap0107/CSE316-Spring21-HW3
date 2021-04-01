@@ -8,6 +8,7 @@ const CreateAccount = (props) => {
 	const [input, setInput] = useState({ email: '', password: '', firstName: '', lastName: '' });
 	const [loading, toggleLoading] = useState(false);
 	const [Register] = useMutation(REGISTER);
+	const [isVisible, setVisible] = useState(true);
 
 	
 	const updateInput = (e) => {
@@ -43,10 +44,10 @@ const CreateAccount = (props) => {
 	return (
         // Replace div with WModal
 
-		<div className="signup-modal">
-			<div className="modal-header" onClose={() => props.setShowCreate(false)}>
+		<WModal visible={isVisible} className="signup-modal">
+			<WMHeader className="modal-header" onClose={() => props.setShowCreate(false)}>
 				Sign Up
-			</div>
+			</WMHeader>
 
 			{
 				loading ? <div />
@@ -78,10 +79,10 @@ const CreateAccount = (props) => {
 						/>
 					</div>
 			}
-			<WButton className="modal-button" onClick={handleCreateAccount} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded" color="primary">
+			<WMFooter className="modal-button" onClick={handleCreateAccount} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded" color="primary">
 				Submit
-			</WButton>
-		</div>
+			</WMFooter>
+		</WModal>
 	);
 }
 

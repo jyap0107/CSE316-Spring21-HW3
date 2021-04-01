@@ -35,13 +35,17 @@ const Homescreen = (props) => {
 	const [AddTodoItem] 			= useMutation(mutations.ADD_ITEM);
 
 
+	//Get DB TodoList and items from cache
 	const { loading, error, data, refetch } = useQuery(GET_DB_TODOS);
 	if(loading) { console.log(loading, 'loading'); }
 	if(error) { console.log(error, 'error'); }
+	//If there is data, then call getAllTodos from within queries cache
 	if(data) { todolists = data.getAllTodos; }
 
 	const auth = props.user === null ? false : true;
 
+	// If has been done before, via refetch, then set active list to the tempId.
+	// activeList is defined as a hook.
 	const refetchTodos = async (refetch) => {
 		const { loading, error, data } = await refetch();
 		if (data) {
@@ -53,13 +57,13 @@ const Homescreen = (props) => {
 			}
 		}
 	}
-
+	// Undo
 	const tpsUndo = async () => {
 		const retVal = await props.tps.undoTransaction();
 		refetchTodos(refetch);
 		return retVal;
 	}
-
+	// Redo
 	const tpsRedo = async () => {
 		const retVal = await props.tps.doTransaction();
 		refetchTodos(refetch);
@@ -83,14 +87,17 @@ const Homescreen = (props) => {
 			completed: false
 		};
 		let opcode = 1;
+		//transaction
 		let itemID = newItem._id;
 		let listID = activeList._id;
 		let transaction = new UpdateListItems_Transaction(listID, itemID, newItem, opcode, AddTodoItem, DeleteTodoItem);
 		props.tps.addTransaction(transaction);
 		tpsRedo();
 	};
-
-
+    /*
+	Takes in a given item to delete, as well as the active list ID and the item ID.
+	Adds the transaction of Updating list items.
+	*/
 	const deleteItem = async (item) => {
 		let listID = activeList._id;
 		let itemID = item._id;
@@ -168,6 +175,7 @@ const Homescreen = (props) => {
 		toggleShowDelete(false);
 		toggleShowCreate(false);
 		toggleShowLogin(!showLogin);
+		console.log(showLogin);
 	};
 
 	const setShowCreate = () => {

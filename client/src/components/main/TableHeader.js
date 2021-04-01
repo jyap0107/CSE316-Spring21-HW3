@@ -2,15 +2,18 @@ import React from 'react';
 
 import { WButton, WRow, WCol } from 'wt-frontend';
 
+
 const TableHeader = (props) => {
 
     const buttonStyle = props.disabled ? ' table-header-button-disabled ' : 'table-header-button ';
     const clickDisabled = () => { };
-
+    const clicked = () => {
+        console.log("yes")
+    }
     return (
         <WRow className="table-header">
             <WCol size="4">
-                <WButton className='table-header-section' wType="texted" >Task</WButton>
+                <WButton className='table-header-section' wType="texted" onClick={clicked}>Task</WButton>
             </WCol>
 
             <WCol size="3">

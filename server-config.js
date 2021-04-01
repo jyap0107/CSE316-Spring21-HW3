@@ -10,7 +10,6 @@ const xssClean = require('xss-clean');
 require('dotenv').config();
 
 const serverOptions = (app) => {
-	
 	app.use(helmet());
 	app.use(express.json({ limit: '10kb' }));
 	app.use(express.urlencoded({ extended: false }));

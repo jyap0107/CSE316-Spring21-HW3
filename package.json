@@ -21,6 +21,7 @@
   "homepage": "https://github.com/wolfie-VIP/CSE316-Spring21-HW3#readme",
   "dependencies": {
     "@apollo/client": "^3.3.7",
+    "@babel/core": "^7.13.14",
     "apollo-server": "^2.14.5",
     "apollo-server-express": "^2.14.5",
     "bcryptjs": "^2.4.3",
@@ -39,7 +40,10 @@
     "nodemon": "^2.0.4",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
+    "react-router-dom": "^5.2.0",
+    "sass": "^1.32.8",
     "validator": "^13.1.1",
+    "wt-frontend": "^1.2.15",
     "xss-clean": "^0.1.1"
   }
 }
