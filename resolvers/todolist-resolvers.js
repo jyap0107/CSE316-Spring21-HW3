@@ -11,12 +11,17 @@ module.exports = {
 		 	@param 	 {object} req - the request object containing a user id
 			@returns {array} an array of todolist objects on success, and an empty array on failure
 		**/
-		getAllTodos: async (_, __, { req }) => {
+		getAllTodos: async (_, args, { req }) => {
 			const _id = new ObjectId(req.userId);
 			if(!_id) { return([])};
 			const todolists = await Todolist.find({owner: _id});
-			if(todolists) return (todolists);
-
+			if(todolists) {
+				if (args) {
+					console.log("HERE")
+					console.log(args);
+				}
+				return (todolists);
+			}
 		},
 		/** 
 		 	@param 	 {object} args - a todolist id
@@ -162,8 +167,92 @@ module.exports = {
 			// return old ordering if reorder was unsuccessful
 			listItems = found.items;
 			return (found.items);
-
+		},
+		/**
+			@param 	 {object} args - contains list id, how to sort (0 or 1 means to sort asc, 2 desc), and flag (what to sort by)
+			@returns {array} the reordered item array on success, or initial ordering on failure
+		**/
+		sortCols: async (_, args) => {
+			const { _id, sortAsc, col} = args;
+			const listId = new ObjectId(_id);
+			const found = await Todolist.findOne({_id: listId});
+			let listItems = found.items;
+			// Description
+			if (col == 0) {
+				if (sortAsc) {
+					listItems.sort(function(item1, item2) {
+						var first = item1.description;
+						var second = item2.description;
+						return (first < second) ? -1 : (first > second) ? 1 : 0;
+					})
+				}
+				else {
+					listItems.sort(function(item1, item2) {
+						var first = item1.description;
+						var second = item2.description;
+						return (first > second) ? -1 : (first < second) ? 1 : 0;
+					})
+				}
+			}
+			// Due Date
+			if (col == 1) {
+				if (sortAsc) {
+					listItems.sort(function(item1, item2) {
+						var first = item1.due_date;
+						var second = item2.due_date;
+						return (first < second) ? -1 : (first > second) ? 1 : 0;
+					})
+				}
+				else {
+					listItems.sort(function(item1, item2) {
+						var first = item1.due_date;
+						var second = item2.due_date;
+						return (first > second) ? -1 : (first < second) ? 1 : 0;
+					})
+				}
+			}
+			// Status
+			if (col == 2) {
+				if (sortAsc) {
+					listItems.sort(function(item1, item2) {
+						var first = item1.completed;
+						var second = item2.completed;
+						return (first < second) ? -1 : (first > second) ? 1 : 0;
+					})
+				}
+				else {
+					listItems.sort(function(item1, item2) {
+						var first = item1.completed;
+						var second = item2.completed;
+						return (first > second) ? -1 : (first < second) ? 1 : 0;
+					})
+				}
+			}
+			const updated = await Todolist.updateOne({_id: listId}, { items: listItems })
+			if (updated) return (listItems);
+			return (found.items);
+		},
+		// args is the ID of the list to bring to the top.
+		activeListTop: async (_, args, {req}) => {
+			// const _id = new ObjectId(req.userId);
+			// if(!_id) { return true};
+			// const todolists = await Todolist.find({owner: _id});
+			// const { id } = args;
+			// console.log("BEFOREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+			// console.log(todolists);
+			// console.log("AFTERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+			// let topList = null
+			// for (let i = 0; i < todolists.length; i++) {
+			// 	if (todolists[i].id == id) {
+			// 		topList = todolists[i];
+			// 		todolists.splice(i, 1);
+			// 		break;
+			// 	}
+			// }
+			// if (topList == null) { return false };
+			// todolists.unshift(topList);
+			// console.log(todolists);
+			return true;
 		}
-
 	}
 }

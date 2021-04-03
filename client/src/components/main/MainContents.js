@@ -8,6 +8,7 @@ const MainContents = (props) => {
             <TableHeader
                 disabled={!props.activeList._id} addItem={props.addItem}
                 setShowDelete={props.setShowDelete} setActiveList={props.setActiveList}
+                sortCols={props.sortCols}
             />
             <TableContents
                 key={props.activeList.id} activeList={props.activeList}

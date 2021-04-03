@@ -33,32 +33,38 @@ const Login = (props) => {
 			props.setShowLogin(false)
 		};
 	};
+	const handleKeyPress = (e) => {
+		if (e.key === "Enter") {
+			console.log("Whoop")
+			handleLogin();
+		}
+	}
 
 
 	return (
         // Replace div with WModal
 
-		<WModal visible={isVisible} className="login-modal">
+		<WModal visible={isVisible} className="login-modal" onKeyPress={handleKeyPress}>
 			<WMHeader className="modal-header" onClose={() => props.setShowLogin(false)}>
 				Login
 			</WMHeader>
 
 			{
-				loading ? <WModal />
-					: <WModal className="main-login-modal">
+				loading ? <div />
+					: <div className="main-login-modal">
 
 						<WInput className="modal-input" onBlur={updateInput} name='email' labelAnimation="up" barAnimation="solid" labelText="Email Address" wType="outlined" inputType='text' />
-						<WModal className="modal-spacer">&nbsp;</WModal>
+						<div className="modal-spacer">&nbsp;</div>
 						<WInput className="modal-input" onBlur={updateInput} name='password' labelAnimation="up" barAnimation="solid" labelText="Password" wType="outlined" inputType='password' />
 
 						{
-							showErr ? <WModal className='modal-error'>
+							showErr ? <div className='modal-error'>
 								{errorMsg}
-							</WModal>
-								: <WModal className='modal-error'>&nbsp;</WModal>
+							</div>
+								: <div className='modal-error'>&nbsp;</div>
 						}
 
-					</WModal>
+					</div>
 			}
 			<WMFooter>
 				<WButton className="modal-button" onClick={handleLogin} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded" color="primary">

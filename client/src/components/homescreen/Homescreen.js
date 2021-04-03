@@ -14,7 +14,8 @@ import { WLayout, WLHeader, WLMain, WLSide } from 'wt-frontend';
 import { UpdateListField_Transaction, 
 	UpdateListItems_Transaction, 
 	ReorderItems_Transaction, 
-	EditItem_Transaction } 				from '../../utils/jsTPS';
+	EditItem_Transaction, 
+	SortCols_Transaction} 				from '../../utils/jsTPS';
 import WInput from 'wt-frontend/build/components/winput/WInput';
 
 
@@ -33,6 +34,8 @@ const Homescreen = (props) => {
 	const [DeleteTodoItem] 			= useMutation(mutations.DELETE_ITEM);
 	const [AddTodolist] 			= useMutation(mutations.ADD_TODOLIST);
 	const [AddTodoItem] 			= useMutation(mutations.ADD_ITEM);
+	const [SortCols]				= useMutation(mutations.SORT_COLS);
+	const [ActiveListTop]			= useMutation(mutations.ACTIVE_LIST_TOP);
 
 
 	//Get DB TodoList and items from cache
@@ -157,14 +160,29 @@ const Homescreen = (props) => {
 		let transaction = new UpdateListField_Transaction(_id, field, prev, value, UpdateTodolistField);
 		props.tps.addTransaction(transaction);
 		tpsRedo();
-
 	};
-
+	
 	const handleSetActive = (id) => {
 		const todo = todolists.find(todo => todo.id === id || todo._id === id);
-		setActiveList(todo);
+		id = id.toString();
+		console.log(id);
+		if (data) {
+			todolists = data.getAllTodos({variables: {id: id}})
+		}
+		setActiveList(todo)
 	};
+	// sortAsc = null or false, make it true and sort it ascending. sortAsc = what it is currently doing.
+	// Takes SortCols mutation and applies it as a callback in tps.
+	const sortCols = async (sortAsc, col) => {
+		let listID = activeList._id;
+		console.log(sortAsc);
+		console.log(listID);
+		console.log(col);
 
+		let transaction = new SortCols_Transaction(listID, sortAsc, col, SortCols);
+		props.tps.addTransaction(transaction);
+		tpsRedo();
+	}
 	
 	/*
 		Since we only have 3 modals, this sort of hardcoding isnt an issue, if there
@@ -233,6 +251,7 @@ const Homescreen = (props) => {
 									editItem={editItem} reorderItem={reorderItem}
 									setShowDelete={setShowDelete}
 									activeList={activeList} setActiveList={setActiveList}
+									sortCols={sortCols}
 								/>
 							</div>
 						:
