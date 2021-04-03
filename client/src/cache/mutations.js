@@ -105,4 +105,8 @@ export const SORT_COLS = gql`
 	}
 `;
 
-
+// export const ACTIVE_LIST_TOP = gql`
+// 	mutation ActiveListTop($id: String!) {
+// 		activeListTop(id: $id)
+// 	}
+// `;

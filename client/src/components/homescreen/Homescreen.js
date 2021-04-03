@@ -35,11 +35,11 @@ const Homescreen = (props) => {
 	const [AddTodolist] 			= useMutation(mutations.ADD_TODOLIST);
 	const [AddTodoItem] 			= useMutation(mutations.ADD_ITEM);
 	const [SortCols]				= useMutation(mutations.SORT_COLS);
-	const [ActiveListTop]			= useMutation(mutations.ACTIVE_LIST_TOP);
+	// const [ActiveListTop]			= useMutation(mutations.ACTIVE_LIST_TOP);
 
 
 	//Get DB TodoList and items from cache
-	const { loading, error, data, refetch } = useQuery(GET_DB_TODOS);
+	const { loading, error, data, refetch } = useQuery(GET_DB_TODOS, {variables: {id: "id"}});
 	if(loading) { console.log(loading, 'loading'); }
 	if(error) { console.log(error, 'error'); }
 	//If there is data, then call getAllTodos from within queries cache
@@ -86,7 +86,7 @@ const Homescreen = (props) => {
 			id: lastID,
 			description: 'No Description',
 			due_date: 'No Date',
-			assigned_to: props.user._id,
+			assigned_to: 'No User',
 			completed: false
 		};
 		let opcode = 1;
@@ -137,6 +137,7 @@ const Homescreen = (props) => {
 	};
 
 	const createNewList = async () => {
+		console.log("create");
 		const length = todolists.length
 		const id = length >= 1 ? todolists[length - 1].id + Math.floor((Math.random() * 100) + 1) : 1;
 		let list = {
@@ -151,6 +152,7 @@ const Homescreen = (props) => {
 	};
 
 	const deleteList = async (_id) => {
+		console.log("delete");
 		DeleteTodolist({ variables: { _id: _id }, refetchQueries: [{ query: GET_DB_TODOS }] });
 		refetch();
 		setActiveList({});
@@ -166,9 +168,6 @@ const Homescreen = (props) => {
 		const todo = todolists.find(todo => todo.id === id || todo._id === id);
 		id = id.toString();
 		console.log(id);
-		if (data) {
-			todolists = data.getAllTodos({variables: {id: id}})
-		}
 		setActiveList(todo)
 	};
 	// sortAsc = null or false, make it true and sort it ascending. sortAsc = what it is currently doing.
@@ -206,6 +205,7 @@ const Homescreen = (props) => {
 		toggleShowCreate(false);
 		toggleShowLogin(false);
 		toggleShowDelete(!showDelete)
+		console.log("reddit")
 	}
 
 	return (

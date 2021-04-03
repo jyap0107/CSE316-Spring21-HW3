@@ -11,6 +11,7 @@ const TableHeader = (props) => {
     const [sortTasksAsc, sortTasks] = useState(false);
     const [sortDueDateAsc, sortDueDate] = useState(false);
     const [sortCompletedAsc, sortCompleted] = useState(false);
+    const [sortUserAsc, sortUser] = useState(false);
     const handleTasksClick = () => {
         props.sortCols(sortTasksAsc, 0);
         sortTasks(!sortTasksAsc);
@@ -23,20 +24,26 @@ const TableHeader = (props) => {
         props.sortCols(sortCompletedAsc, 2);
         sortCompleted(!sortCompletedAsc);
     }
+    const handleUserClick = () => {
+        props.sortCols(sortUserAsc, 3);
+        sortUser(!sortUserAsc);
+    }
     return (
         <WRow className="table-header">
-            <WCol size="4">
+            <WCol size="3">
                 <WButton className='table-header-section' wType="texted" onClick={handleTasksClick}>Task</WButton>
             </WCol>
 
-            <WCol size="3">
+            <WCol size="2">
                 <WButton className='table-header-section' wType="texted" onClick={handleDueDateClick}>Due Date</WButton>
             </WCol>
 
             <WCol size="2">
                 <WButton className='table-header-section' wType="texted" onClick={handleCompletedClick}>Status</WButton>
             </WCol>
-
+            <WCol size="2">
+                <WButton className='table-header-section' wType="texted" onClick={handleUserClick}>Assigned User</WButton>
+            </WCol>
             <WCol size="3">
                 <div className="table-header-buttons">
                     <WButton onClick={props.disabled ? clickDisabled : props.addItem} wType="texted" className={`${buttonStyle}`}>

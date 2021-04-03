@@ -121,6 +121,8 @@ module.exports = {
 		updateItemField: async (_, args) => {
 			const { _id, itemId, field,  flag } = args;
 			let { value } = args
+			console.log(field);
+			console.log(value);
 			const listId = new ObjectId(_id);
 			const found = await Todolist.findOne({_id: listId});
 			let listItems = found.items;
@@ -128,12 +130,14 @@ module.exports = {
 				if(value === 'complete') { value = true; }
 				if(value === 'incomplete') { value = false; }
 			}
+			console.log(itemId);
 			listItems.map(item => {
-				if(item._id.toString() === itemId) {	
-					
+				if(item._id.toString() == itemId) {	
+					console.log("righto!");
 					item[field] = value;
 				}
 			});
+			console.log(listItems);
 			const updated = await Todolist.updateOne({_id: listId}, { items: listItems })
 			if(updated) return (listItems);
 			else return (found.items);
@@ -224,6 +228,21 @@ module.exports = {
 					listItems.sort(function(item1, item2) {
 						var first = item1.completed;
 						var second = item2.completed;
+						return (first > second) ? -1 : (first < second) ? 1 : 0;
+					})
+				}
+			}if (col == 3) {
+				if (sortAsc) {
+					listItems.sort(function(item1, item2) {
+						var first = item1.assigned_to;
+						var second = item2.assigned_to;
+						return (first < second) ? -1 : (first > second) ? 1 : 0;
+					})
+				}
+				else {
+					listItems.sort(function(item1, item2) {
+						var first = item1.assigned_to;
+						var second = item2.assigned_to;
 						return (first > second) ? -1 : (first < second) ? 1 : 0;
 					})
 				}

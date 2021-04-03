@@ -9,15 +9,18 @@ const TableEntry = (props) => {
     const description = data.description;
     const due_date = data.due_date;
     const status = data.completed ? 'complete' : 'incomplete';
+    const user = data.assigned_to;
     const [editingDate, toggleDateEdit] = useState(false);
     const [editingDescr, toggleDescrEdit] = useState(false);
     const [editingStatus, toggleStatusEdit] = useState(false);
+    const [editingUser, toggleUserEdit] = useState(false);
 
     const handleDateEdit = (e) => {
         toggleDateEdit(false);
         const newDate = e.target.value ? e.target.value : 'No Date';
         const prevDate = due_date;
         props.editItem(data._id, 'due_date', newDate, prevDate);
+        console.log(props.entries);
     };
 
     const handleDescrEdit = (e) => {
@@ -33,10 +36,17 @@ const TableEntry = (props) => {
         const prevStatus = status;
         props.editItem(data._id, 'completed', newStatus, prevStatus);
     };
+    const handleUserEdit = (e) => {
+        console.log(user);
+        toggleUserEdit(false);
+        const newUser = e.target.value ? e.target.value : 'No User';
+        const prevUser = user;
+        props.editItem(data._id, 'assigned_to', newUser, prevUser);
+    }
 
     return (
         <WRow className='table-entry'>
-            <WCol size="4">
+            <WCol size="3">
                 {
                     editingDescr || description === ''
                         ? <WInput
@@ -51,7 +61,7 @@ const TableEntry = (props) => {
                 }
             </WCol>
 
-            <WCol size="3">
+            <WCol size="2">
                 {
                     editingDate ? <input
                         className='table-input' onBlur={handleDateEdit}
@@ -76,6 +86,21 @@ const TableEntry = (props) => {
                     </select>
                         : <div onClick={() => toggleStatusEdit(!editingStatus)} className={`${completeStyle} table-text`}>
                             {status}
+                        </div>
+                }
+            </WCol>
+
+            <WCol size="2">
+                {
+                    editingUser || user === ''
+                        ? <WInput
+                            className='table-input' onBlur={handleUserEdit}
+                            autoFocus={true} defaultValue={user} type='text'
+                            wType="outlined" barAnimation="solid" inputClass="table-input-class"
+                        />
+                        : <div className="table-text"
+                            onClick={() => toggleUserEdit(!editingUser)}
+                        >{user}
                         </div>
                 }
             </WCol>
