@@ -2,6 +2,7 @@ import React                    from 'react';
 import { WButton, WRow, WCol }  from 'wt-frontend';
 
 const SidebarHeader = (props) => {
+
     return (
         <WRow className='sidebar-header'>
             <WCol size="7">
@@ -13,15 +14,10 @@ const SidebarHeader = (props) => {
             <WCol size="5">
                 {
                     props.auth && <div className="sidebar-options">
-                        <WButton className="sidebar-buttons" onClick={props.createNewList} clickAnimation="ripple-light" shape="rounded" color="primary">
+                        <WButton className="sidebar-buttons" onClick={props.createNewList} clickAnimation="ripple-light" shape="rounded" color="primary" /*disabled={props.activeid ? true : false}*/>
                             <i className="material-icons">add</i>
                         </WButton>
-                        <WButton className="sidebar-buttons undo-redo" onClick={props.undo} wType="texted" clickAnimation="ripple-light" shape="rounded">
-                            <i className="material-icons">undo</i>
-                        </WButton>
-                        <WButton className="sidebar-buttons undo-redo" onClick={props.redo} wType="texted" clickAnimation="ripple-light" shape="rounded">
-                            <i className="material-icons">redo</i>
-                        </WButton>
+    
                     </div>
                 }
             </WCol>

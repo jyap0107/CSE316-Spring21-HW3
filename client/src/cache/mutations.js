@@ -30,9 +30,9 @@ export const LOGOUT = gql`
 `;
 
 export const ADD_ITEM = gql`
-	mutation AddItem($item: ItemInput!, $_id: String!) {
-		addItem(item: $item, _id: $_id)
-	}
+	mutation AddItem($item: ItemInput!, $_id: String!, $index: Int!) {
+		addItem(item: $item, _id: $_id, index: $index)
+   }
 `;
 
 export const DELETE_ITEM = gql`
@@ -93,8 +93,8 @@ export const UPDATE_TODOLIST_FIELD = gql`
 `;
 
 export const SORT_COLS = gql`
-	mutation SortCols($_id: String!, $sortAsc: Boolean!, $col: Int!) {
-		sortCols(_id: $_id, sortAsc: $sortAsc, col: $col) {
+	mutation SortCols($_id: String!, $sortAsc: Boolean!, $col: Int!, $prevList: [ItemInput!]!) {
+		sortCols(_id: $_id, sortAsc: $sortAsc, col: $col, prevList: $prevList) {
 			_id
 			id
 			description

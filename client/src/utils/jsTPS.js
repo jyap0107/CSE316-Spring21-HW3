@@ -24,21 +24,21 @@ export class UpdateListField_Transaction extends jsTPS_Transaction {
 }
 
 export class SortCols_Transaction extends jsTPS_Transaction {
-    constructor(listID, sortAsc, column, callback) {
+    constructor(listID, sortAsc, column, prevList, callback) {
         super()
         this.listID = listID;
         this.sortAsc = sortAsc;
         this.col = column;
         this.updateFunction = callback;
+        this.prevList = prevList.map(({__typename, ...item}) => item);
     }
     async doTransaction() { 
-        console.log(this.listID);
-        const { data } = await this.updateFunction({ variables: { _id: this.listID, sortAsc: this.sortAsc, col: this.col}})
-        console.log("pooo");
-        console.log(data);
+        const { data } = await this.updateFunction({ variables: { _id: this.listID, sortAsc: this.sortAsc, col: this.col, prevList: this.prevList}});
+        console.log(this.prevList);
     }
     async undoTransaction() {
-
+        
+        const { data } = await this.updateFunction({ variables: { _id: this.listID, sortAsc: this.sortAsc, col: -1, prevList: this.prevList}})
     }
 }
 /*  Handles item reordering */
@@ -102,7 +102,7 @@ export class EditItem_Transaction extends jsTPS_Transaction {
 /*  Handles create/delete of list items */
 export class UpdateListItems_Transaction extends jsTPS_Transaction {
     // opcodes: 0 - delete, 1 - add 
-    constructor(listID, itemID, item, opcode, addfunc, delfunc) {
+    constructor(listID, itemID, item, opcode, addfunc, delfunc, index = -1) {
         super();
         this.listID = listID;
 		this.itemID = itemID;
@@ -110,13 +110,14 @@ export class UpdateListItems_Transaction extends jsTPS_Transaction {
         this.addFunction = addfunc;
         this.deleteFunction = delfunc;
         this.opcode = opcode;
+        this.index = index;
     }
     async doTransaction() {
 		let data;
         this.opcode === 0 ? { data } = await this.deleteFunction({
 							variables: {itemId: this.itemID, _id: this.listID}})
 						  : { data } = await this.addFunction({
-							variables: {item: this.item, _id: this.listID}})  
+							variables: {item: this.item, _id: this.listID, index: this.index}})  
 		if(this.opcode !== 0) {
             this.item._id = this.itemID = data.addItem;
 		}
@@ -128,7 +129,7 @@ export class UpdateListItems_Transaction extends jsTPS_Transaction {
         this.opcode === 1 ? { data } = await this.deleteFunction({
 							variables: {itemId: this.itemID, _id: this.listID}})
                           : { data } = await this.addFunction({
-							variables: {item: this.item, _id: this.listID}})
+							variables: {item: this.item, _id: this.listID, index: this.index}})
 		if(this.opcode !== 1) {
             this.item._id = this.itemID = data.addItem;
         }
@@ -325,6 +326,8 @@ export class jsTPS {
      * return true if an undo operation is possible, false otherwise.
      */
     hasTransactionToUndo() {
+        let temp = this.mostRecentTransaction >= 0
+        console.log(temp)
         return this.mostRecentTransaction >= 0;
     }
     

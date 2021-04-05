@@ -26,6 +26,8 @@ const Homescreen = (props) => {
 	const [showDelete, toggleShowDelete] 	= useState(false);
 	const [showLogin, toggleShowLogin] 		= useState(false);
 	const [showCreate, toggleShowCreate] 	= useState(false);
+	const [canUndo, setCanUndo] = useState(props.hasTransactionToUndo);
+    const [canRedo, setCanRedo] = useState(props.hasTransactionToRedo);
 
 	const [ReorderTodoItems] 		= useMutation(mutations.REORDER_ITEMS);
 	const [UpdateTodoItemField] 	= useMutation(mutations.UPDATE_ITEM_FIELD);
@@ -62,12 +64,15 @@ const Homescreen = (props) => {
 	}
 	// Undo
 	const tpsUndo = async () => {
+		console.log(props.tps.hasTransactionToUndo());
+		console.log("CHESSSS");
 		const retVal = await props.tps.undoTransaction();
 		refetchTodos(refetch);
 		return retVal;
 	}
 	// Redo
 	const tpsRedo = async () => {
+		console.log("KILL MEEE")
 		const retVal = await props.tps.doTransaction();
 		refetchTodos(refetch);
 		return retVal;
@@ -95,13 +100,14 @@ const Homescreen = (props) => {
 		let listID = activeList._id;
 		let transaction = new UpdateListItems_Transaction(listID, itemID, newItem, opcode, AddTodoItem, DeleteTodoItem);
 		props.tps.addTransaction(transaction);
+		console.log(props.tps.hasTransactionToUndo())
 		tpsRedo();
 	};
     /*
 	Takes in a given item to delete, as well as the active list ID and the item ID.
 	Adds the transaction of Updating list items.
 	*/
-	const deleteItem = async (item) => {
+	const deleteItem = async (item, index) => {
 		let listID = activeList._id;
 		let itemID = item._id;
 		let opcode = 0;
@@ -113,7 +119,7 @@ const Homescreen = (props) => {
 			assigned_to: item.assigned_to,
 			completed: item.completed
 		}
-		let transaction = new UpdateListItems_Transaction(listID, itemID, itemToDelete, opcode, AddTodoItem, DeleteTodoItem);
+		let transaction = new UpdateListItems_Transaction(listID, itemID, itemToDelete, opcode, AddTodoItem, DeleteTodoItem, index);
 		props.tps.addTransaction(transaction);
 		tpsRedo();
 	};
@@ -155,6 +161,7 @@ const Homescreen = (props) => {
 		console.log("delete");
 		DeleteTodolist({ variables: { _id: _id }, refetchQueries: [{ query: GET_DB_TODOS }] });
 		refetch();
+		props.tps.clearAllTransactions();
 		setActiveList({});
 	};
 
@@ -167,18 +174,15 @@ const Homescreen = (props) => {
 	const handleSetActive = (id) => {
 		const todo = todolists.find(todo => todo.id === id || todo._id === id);
 		id = id.toString();
-		console.log(id);
+		props.tps.clearAllTransactions();
+		console.log(props.tps.hasTransactionToUndo());
 		setActiveList(todo)
 	};
 	// sortAsc = null or false, make it true and sort it ascending. sortAsc = what it is currently doing.
 	// Takes SortCols mutation and applies it as a callback in tps.
 	const sortCols = async (sortAsc, col) => {
 		let listID = activeList._id;
-		console.log(sortAsc);
-		console.log(listID);
-		console.log(col);
-
-		let transaction = new SortCols_Transaction(listID, sortAsc, col, SortCols);
+		let transaction = new SortCols_Transaction(listID, sortAsc, col, activeList.items, SortCols);
 		props.tps.addTransaction(transaction);
 		tpsRedo();
 	}
@@ -205,8 +209,9 @@ const Homescreen = (props) => {
 		toggleShowCreate(false);
 		toggleShowLogin(false);
 		toggleShowDelete(!showDelete)
-		console.log("reddit")
 	}
+	const hasUndo = props.tps.hasTransactionToUndo();
+	const hasRedo = props.tps.hasTransactionToRedo();
 
 	return (
 		<WLayout wLayout="header-lside">
@@ -252,6 +257,10 @@ const Homescreen = (props) => {
 									setShowDelete={setShowDelete}
 									activeList={activeList} setActiveList={setActiveList}
 									sortCols={sortCols}
+									undo={tpsUndo}
+									redo={tpsRedo}
+									hasUndo={hasUndo}
+									hasRedo={hasRedo}
 								/>
 							</div>
 						:

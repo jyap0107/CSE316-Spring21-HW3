@@ -1,6 +1,3 @@
-@use 'node_modules/wt-frontend/build/global/wolfie';
-
-@use 'node_modules/wt-frontend/build/global/components';
 
 #root {
     height: 100vh;
@@ -51,6 +48,10 @@ html {
     width: 100%;
     flex-direction: column;
     //align-items: center;
+}
+.undo-redo{
+    color:white;
+    background-color: white;
 }
 
 .table-entries {
@@ -105,6 +106,7 @@ html {
     height: 100%;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
 }
 
 .sidebar-header {

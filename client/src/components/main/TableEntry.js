@@ -1,3 +1,4 @@
+import { printIntrospectionSchema } from 'graphql';
 import React, { useState } from 'react';
 import { WButton, WInput, WRow, WCol } from 'wt-frontend';
 
@@ -22,7 +23,7 @@ const TableEntry = (props) => {
         props.editItem(data._id, 'due_date', newDate, prevDate);
         console.log(props.entries);
     };
-
+    const clickDisabled = () => { };
     const handleDescrEdit = (e) => {
         toggleDescrEdit(false);
         const newDescr = e.target.value ? e.target.value : 'No Description';
@@ -104,16 +105,15 @@ const TableEntry = (props) => {
                         </div>
                 }
             </WCol>
-
-            <WCol size="3">
+            <WCol size="2">
                 <div className='button-group'>
-                    <WButton className="table-entry-buttons" onClick={() => props.reorderItem(data._id, -1)} wType="texted">
+                    <WButton className="table-entry-buttons" onClick={props.index == 0 ? clickDisabled : () => props.reorderItem(data._id, -1)}  wType="texted" disabled={props.index == 0 ? true : false}>
                         <i className="material-icons">expand_less</i>
                     </WButton>
-                    <WButton className="table-entry-buttons" onClick={() => props.reorderItem(data._id, 1)} wType="texted">
+                    <WButton className="table-entry-buttons" onClick={() => props.reorderItem(data._id, 1)} wType="texted" disabled={props.length -1 == props.index ? true : false}>
                         <i className="material-icons">expand_more</i>
                     </WButton>
-                    <WButton className="table-entry-buttons" onClick={() => props.deleteItem(data)} wType="texted">
+                    <WButton className="table-entry-buttons" onClick={() => props.deleteItem(data, props.index)} wType="texted">
                         <i className="material-icons">close</i>
                     </WButton>
                 </div>
