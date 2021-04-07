@@ -12,14 +12,23 @@ module.exports = {
 			@returns {array} an array of todolist objects on success, and an empty array on failure
 		**/
 		getAllTodos: async (_, args, { req }) => {
-			const _id = new ObjectId(req.userId);
-			if(!_id) { return([])};
-			const todolists = await Todolist.find({owner: _id});
+			const { _id } = args;
+			const _id2 = new ObjectId(req.userId);
+			if(!_id2) { return([])};
+			let todolists = await Todolist.find({owner: _id2});
 			if(todolists) {
-				if (args) {
+				console.log(todolists);
+				if (_id) {
 					console.log("HERE")
-					console.log(args);
+					for (let i = 0; i < todolists.length; i++) {
+						if (todolists[i]._id == _id) {
+							let removed = todolists.splice(i, 1);
+							console.log(removed)
+							todolists.unshift(removed[0]);
+						}
+					}
 				}
+				console.log(todolists);
 				return (todolists);
 			}
 		},
@@ -72,6 +81,7 @@ module.exports = {
 				items: items
 			});
 			const updated = newList.save();
+			// Change newList from objectId return
 			if(updated) return objectId;
 			else return ('Could not add todolist');
 		},

@@ -18,7 +18,7 @@ const typeDefs = gql `
 		completed:  Boolean!
 	}
 	extend type Query {
-		getAllTodos: [Todolist]
+		getAllTodos(_id: String): [Todolist]
 		getTodoById(_id: String!): Todolist 
 	}
 	extend type Mutation {

@@ -12,8 +12,8 @@ export const GET_DB_USER = gql`
 `;
 
 export const GET_DB_TODOS = gql`
-	query GetDBTodos {
-		getAllTodos {
+	query GetDBTodos($_id: String) {
+		getAllTodos(_id: $_id) {
 			_id
 			id
 			name

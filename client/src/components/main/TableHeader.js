@@ -49,10 +49,10 @@ const TableHeader = (props) => {
             
             <WCol size="3">
                 <div className="table-header-buttons">
-                    <WButton className="undo-redo" onClick={props.hasUndo ? () => props.undo : clickDisabled} wType="texted" clickAnimation="ripple-light" shape="rounded" disabled={props.hasUndo ? false : true}>
+                    <WButton className="undo-redo" onClick={props.hasUndo ? props.undo : clickDisabled} wType="texted" clickAnimation="ripple-light" shape="rounded" disabled={props.hasUndo ? false : true}>
                         <i className="material-icons">undo</i>
                     </WButton>
-                    <WButton className="undo-redo" onClick={props.hasRedo ? () => props.redo : clickDisabled} wType="texted" clickAnimation="ripple-light" shape="rounded" disabled={props.hasRedo ? false : true}>
+                    <WButton className="undo-redo" onClick={props.hasRedo ? props.redo : clickDisabled} wType="texted" clickAnimation="ripple-light" shape="rounded" disabled={props.hasRedo ? false : true}>
                         <i className="material-icons">redo</i>
                     </WButton>
                     <WButton onClick={props.disabled ? clickDisabled : props.addItem} wType="texted" className={`${buttonStyle}`}>
@@ -61,7 +61,7 @@ const TableHeader = (props) => {
                     <WButton onClick={props.disabled ? clickDisabled : props.setShowDelete} wType="texted" className={`${buttonStyle}`}>
                         <i className="material-icons">delete_outline</i>
                     </WButton>
-                    <WButton onClick={props.disabled ? clickDisabled : () => props.setActiveList({})} wType="texted" className={`${buttonStyle}`}>
+                    <WButton onClick={props.disabled ? clickDisabled : props.handleClickClose } wType="texted" className={`${buttonStyle}`}>
                         <i className="material-icons">close</i>
                     </WButton>
                 </div>

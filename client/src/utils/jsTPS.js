@@ -327,7 +327,6 @@ export class jsTPS {
      */
     hasTransactionToUndo() {
         let temp = this.mostRecentTransaction >= 0
-        console.log(temp)
         return this.mostRecentTransaction >= 0;
     }
     

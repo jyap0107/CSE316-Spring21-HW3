@@ -26,8 +26,8 @@ const Homescreen = (props) => {
 	const [showDelete, toggleShowDelete] 	= useState(false);
 	const [showLogin, toggleShowLogin] 		= useState(false);
 	const [showCreate, toggleShowCreate] 	= useState(false);
-	const [canUndo, setCanUndo] = useState(props.hasTransactionToUndo);
-    const [canRedo, setCanRedo] = useState(props.hasTransactionToRedo);
+	const [hasUndo, setCanUndo] 			= useState(false);
+    const [hasRedo, setCanRedo] 			= useState(false);
 
 	const [ReorderTodoItems] 		= useMutation(mutations.REORDER_ITEMS);
 	const [UpdateTodoItemField] 	= useMutation(mutations.UPDATE_ITEM_FIELD);
@@ -41,7 +41,7 @@ const Homescreen = (props) => {
 
 
 	//Get DB TodoList and items from cache
-	const { loading, error, data, refetch } = useQuery(GET_DB_TODOS, {variables: {id: "id"}});
+	const { loading, error, data, refetch } = useQuery(GET_DB_TODOS, {variables: {_id: activeList._id}});
 	if(loading) { console.log(loading, 'loading'); }
 	if(error) { console.log(error, 'error'); }
 	//If there is data, then call getAllTodos from within queries cache
@@ -59,22 +59,26 @@ const Homescreen = (props) => {
 				let tempID = activeList._id;
 				let list = todolists.find(list => list._id === tempID);
 				setActiveList(list);
+				
 			}
 		}
 	}
 	// Undo
 	const tpsUndo = async () => {
-		console.log(props.tps.hasTransactionToUndo());
-		console.log("CHESSSS");
+		console.log("Undo called.");
 		const retVal = await props.tps.undoTransaction();
 		refetchTodos(refetch);
+		handleSetUndo();
+		handleSetRedo();
 		return retVal;
 	}
 	// Redo
 	const tpsRedo = async () => {
-		console.log("KILL MEEE")
+		console.log("Redo called.");
 		const retVal = await props.tps.doTransaction();
 		refetchTodos(refetch);
+		handleSetUndo();
+		handleSetRedo();
 		return retVal;
 	}
 
@@ -99,9 +103,10 @@ const Homescreen = (props) => {
 		let itemID = newItem._id;
 		let listID = activeList._id;
 		let transaction = new UpdateListItems_Transaction(listID, itemID, newItem, opcode, AddTodoItem, DeleteTodoItem);
-		props.tps.addTransaction(transaction);
-		console.log(props.tps.hasTransactionToUndo())
-		tpsRedo();
+		const retVal = await props.tps.addTransaction(transaction);
+		await tpsRedo();
+		handleSetUndo();
+		handleSetRedo();
 	};
     /*
 	Takes in a given item to delete, as well as the active list ID and the item ID.
@@ -121,7 +126,9 @@ const Homescreen = (props) => {
 		}
 		let transaction = new UpdateListItems_Transaction(listID, itemID, itemToDelete, opcode, AddTodoItem, DeleteTodoItem, index);
 		props.tps.addTransaction(transaction);
-		tpsRedo();
+		await tpsRedo();
+		handleSetUndo();
+		handleSetRedo();
 	};
 
 	const editItem = async (itemID, field, value, prev) => {
@@ -130,18 +137,25 @@ const Homescreen = (props) => {
 		let listID = activeList._id;
 		let transaction = new EditItem_Transaction(listID, itemID, field, prev, value, flag, UpdateTodoItemField);
 		props.tps.addTransaction(transaction);
-		tpsRedo();
-
+		await tpsRedo();
+		handleSetUndo();
+		handleSetRedo();
 	};
 
 	const reorderItem = async (itemID, dir) => {
 		let listID = activeList._id;
 		let transaction = new ReorderItems_Transaction(listID, itemID, dir, ReorderTodoItems);
 		props.tps.addTransaction(transaction);
-		tpsRedo();
-
+		await tpsRedo();
+		handleSetUndo();
+		handleSetRedo();
 	};
-
+	const handleClickClose = async () => {
+		props.tps.clearAllTransactions();
+		setActiveList([]);
+		handleSetUndo();
+		handleSetRedo();
+	}
 	const createNewList = async () => {
 		console.log("create");
 		const length = todolists.length
@@ -153,30 +167,49 @@ const Homescreen = (props) => {
 			owner: props.user._id,
 			items: [],
 		}
-		const { data } = await AddTodolist({ variables: { todolist: list }, refetchQueries: [{ query: GET_DB_TODOS }] });
-		setActiveList(list)
+		const { data } = await AddTodolist({ variables: { todolist: list }, refetchQueries: [{ query: GET_DB_TODOS}] });
+		console.log(data);
+		console.log(data.addTodolist);
+		list._id = data.addTodolist;
+		await setActiveList(list)
+		props.tps.clearAllTransactions();
+		// handleSetUndo();
+		// handleSetRedo();
+		refetch({variables: {_id: list._id}});
 	};
 
 	const deleteList = async (_id) => {
 		console.log("delete");
 		DeleteTodolist({ variables: { _id: _id }, refetchQueries: [{ query: GET_DB_TODOS }] });
-		refetch();
-		props.tps.clearAllTransactions();
+		await props.tps.clearAllTransactions();
+		handleSetUndo();
+		handleSetRedo();
 		setActiveList({});
+		refetch();
+		console.log(todolists.length);
+
 	};
 
 	const updateListField = async (_id, field, value, prev) => {
 		let transaction = new UpdateListField_Transaction(_id, field, prev, value, UpdateTodolistField);
 		props.tps.addTransaction(transaction);
-		tpsRedo();
+		await tpsRedo();
+		if (field == "name") {
+			await props.tps.clearAllTransactions();
+			handleSetUndo();
+			handleSetRedo();
+		}
 	};
 	
-	const handleSetActive = (id) => {
+	const handleSetActive = async (id) => {
 		const todo = todolists.find(todo => todo.id === id || todo._id === id);
 		id = id.toString();
 		props.tps.clearAllTransactions();
-		console.log(props.tps.hasTransactionToUndo());
-		setActiveList(todo)
+		// console.log("JIMBO")
+		// refetch({variables: {_id: "JIMBO"}});
+		await setActiveList(todo)
+		// console.log("SIZE:");
+		refetch({variables: {_id: id}});
 	};
 	// sortAsc = null or false, make it true and sort it ascending. sortAsc = what it is currently doing.
 	// Takes SortCols mutation and applies it as a callback in tps.
@@ -184,7 +217,9 @@ const Homescreen = (props) => {
 		let listID = activeList._id;
 		let transaction = new SortCols_Transaction(listID, sortAsc, col, activeList.items, SortCols);
 		props.tps.addTransaction(transaction);
-		tpsRedo();
+		await tpsRedo();
+		handleSetUndo();
+		handleSetRedo();
 	}
 	
 	/*
@@ -210,8 +245,18 @@ const Homescreen = (props) => {
 		toggleShowLogin(false);
 		toggleShowDelete(!showDelete)
 	}
-	const hasUndo = props.tps.hasTransactionToUndo();
-	const hasRedo = props.tps.hasTransactionToRedo();
+	const handleSetUndo = async() => {
+		const checkUndo = await props.tps.hasTransactionToUndo();
+		if (checkUndo) await setCanUndo(true);
+		else await setCanUndo(false);
+
+	}
+	const handleSetRedo = async() => {
+		const checkRedo = await props.tps.hasTransactionToRedo();
+		console.log(checkRedo);
+		if (checkRedo) await setCanRedo(true);
+		else await setCanRedo(false);
+	}
 
 	return (
 		<WLayout wLayout="header-lside">
@@ -261,6 +306,7 @@ const Homescreen = (props) => {
 									redo={tpsRedo}
 									hasUndo={hasUndo}
 									hasRedo={hasRedo}
+									handleClickClose ={handleClickClose}
 								/>
 							</div>
 						:
