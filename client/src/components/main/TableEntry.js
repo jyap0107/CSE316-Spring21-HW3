@@ -99,7 +99,7 @@ const TableEntry = (props) => {
                             autoFocus={true} defaultValue={user} type='text'
                             wType="outlined" barAnimation="solid" inputClass="table-input-class"
                         />
-                        : <div className="table-text"
+                        : <div className={data.completed ? "table-text complete-user" : "table-text incomplete-user"}
                             onClick={() => toggleUserEdit(!editingUser)}
                         >{user}
                         </div>

@@ -80,7 +80,7 @@ module.exports = {
 				owner: owner,
 				items: items
 			});
-			const updated = newList.save();
+			const updated = await newList.save();
 			// Change newList from objectId return
 			if(updated) return objectId;
 			else return ('Could not add todolist');

@@ -28,6 +28,7 @@ const Homescreen = (props) => {
 	const [showCreate, toggleShowCreate] 	= useState(false);
 	const [hasUndo, setCanUndo] 			= useState(false);
     const [hasRedo, setCanRedo] 			= useState(false);
+	const [update, forceUpdate]				= useState(false);
 
 	const [ReorderTodoItems] 		= useMutation(mutations.REORDER_ITEMS);
 	const [UpdateTodoItemField] 	= useMutation(mutations.UPDATE_ITEM_FIELD);
@@ -37,6 +38,10 @@ const Homescreen = (props) => {
 	const [AddTodolist] 			= useMutation(mutations.ADD_TODOLIST);
 	const [AddTodoItem] 			= useMutation(mutations.ADD_ITEM);
 	const [SortCols]				= useMutation(mutations.SORT_COLS);
+	useEffect(() => {
+		window.addEventListener('keydown', handleKeyPress);
+		return () => window.removeEventListener('keydown', handleKeyPress);
+		}, [props.tps])
 	// const [ActiveListTop]			= useMutation(mutations.ACTIVE_LIST_TOP);
 
 
@@ -51,8 +56,8 @@ const Homescreen = (props) => {
 
 	// If has been done before, via refetch, then set active list to the tempId.
 	// activeList is defined as a hook.
-	const refetchTodos = async (refetch) => {
-		const { loading, error, data } = await refetch();
+	const refetchTodos = async (refetch, _id = "") => {
+		const { loading, error, data } = await refetch({variables: {_id: _id}});
 		if (data) {
 			todolists = data.getAllTodos;
 			if (activeList._id) {
@@ -61,7 +66,9 @@ const Homescreen = (props) => {
 				setActiveList(list);
 				
 			}
+			return true;
 		}
+		return false;
 	}
 	// Undo
 	const tpsUndo = async () => {
@@ -132,6 +139,9 @@ const Homescreen = (props) => {
 	};
 
 	const editItem = async (itemID, field, value, prev) => {
+		if (value == prev) {
+			return;
+		}
 		let flag = 0;
 		if (field === 'completed') flag = 1;
 		let listID = activeList._id;
@@ -158,6 +168,7 @@ const Homescreen = (props) => {
 	}
 	const createNewList = async () => {
 		console.log("create");
+		console.log(todolists);
 		const length = todolists.length
 		const id = length >= 1 ? todolists[length - 1].id + Math.floor((Math.random() * 100) + 1) : 1;
 		let list = {
@@ -168,20 +179,25 @@ const Homescreen = (props) => {
 			items: [],
 		}
 		const { data } = await AddTodolist({ variables: { todolist: list }, refetchQueries: [{ query: GET_DB_TODOS}] });
-		console.log(data);
-		console.log(data.addTodolist);
-		list._id = data.addTodolist;
-		await setActiveList(list)
-		props.tps.clearAllTransactions();
-		// handleSetUndo();
-		// handleSetRedo();
-		refetch({variables: {_id: list._id}});
+		if (data) {
+			list._id = data.addTodolist;
+			// refetch({variables: {_id: list._id}});
+			let temp = await refetchTodos(refetch, list._id);
+			if (temp) {
+				setActiveList(list);
+				props.tps.clearAllTransactions();
+			}
+			
+			// handleSetUndo();
+			// handleSetRedo();
+		}
+		
 	};
 
 	const deleteList = async (_id) => {
 		console.log("delete");
 		DeleteTodolist({ variables: { _id: _id }, refetchQueries: [{ query: GET_DB_TODOS }] });
-		await props.tps.clearAllTransactions();
+		props.tps.clearAllTransactions();
 		handleSetUndo();
 		handleSetRedo();
 		setActiveList({});
@@ -191,6 +207,8 @@ const Homescreen = (props) => {
 	};
 
 	const updateListField = async (_id, field, value, prev) => {
+		console.log(value);
+		console.log(prev);
 		let transaction = new UpdateListField_Transaction(_id, field, prev, value, UpdateTodolistField);
 		props.tps.addTransaction(transaction);
 		await tpsRedo();
@@ -209,6 +227,9 @@ const Homescreen = (props) => {
 		// refetch({variables: {_id: "JIMBO"}});
 		await setActiveList(todo)
 		// console.log("SIZE:");
+		console.log(todolists);
+		handleSetUndo();
+		handleSetRedo();
 		refetch({variables: {_id: id}});
 	};
 	// sortAsc = null or false, make it true and sort it ascending. sortAsc = what it is currently doing.
@@ -245,21 +266,33 @@ const Homescreen = (props) => {
 		toggleShowLogin(false);
 		toggleShowDelete(!showDelete)
 	}
-	const handleSetUndo = async() => {
-		const checkUndo = await props.tps.hasTransactionToUndo();
-		if (checkUndo) await setCanUndo(true);
-		else await setCanUndo(false);
+	const handleSetUndo = () => {
+		const checkUndo = props.tps.hasTransactionToUndo();
+		if (checkUndo) setCanUndo(true);
+		else setCanUndo(false);
 
 	}
-	const handleSetRedo = async() => {
-		const checkRedo = await props.tps.hasTransactionToRedo();
+	const handleSetRedo = () => {
+		const checkRedo = props.tps.hasTransactionToRedo();
 		console.log(checkRedo);
-		if (checkRedo) await setCanRedo(true);
-		else await setCanRedo(false);
+		if (checkRedo) setCanRedo(true);
+		else setCanRedo(false);
 	}
+	const handleKeyPress = (event) => {
+
+		console.log("yeah");
+		if (event.ctrlKey && event.key == "z") {
+		  tpsUndo();
+		  forceUpdate(!update);
+		}
+		if (event.ctrlKey && event.key == "y") {
+		  tpsRedo();
+		}
+	  }
 
 	return (
-		<WLayout wLayout="header-lside">
+		<WLayout wLayout="header-lside" onKeyDown={handleKeyPress}
+		>
 			<WLHeader>
 				<WNavbar color="colored">
 					<ul>

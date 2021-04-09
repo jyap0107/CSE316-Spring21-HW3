@@ -52,7 +52,15 @@ html, body {
     -moz-osx-font-smoothing: grayscale;
     background-color: $background-color;
 }
-
+.list-item-active {
+    color: $primary-color
+}
+.complete-user {
+    color: black;
+}
+.incomplete-user {
+    color:red;
+}
 .complete-task {
     color: var(--light-blue);
 }
