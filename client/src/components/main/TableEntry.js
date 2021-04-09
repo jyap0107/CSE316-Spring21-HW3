@@ -105,7 +105,7 @@ const TableEntry = (props) => {
                         </div>
                 }
             </WCol>
-            <WCol size="2">
+            <WCol size="3">
                 <div className='button-group'>
                     <WButton className="table-entry-buttons" onClick={props.index == 0 ? clickDisabled : () => props.reorderItem(data._id, -1)}  wType="texted" disabled={props.index == 0 ? true : false}>
                         <i className="material-icons">expand_less</i>
