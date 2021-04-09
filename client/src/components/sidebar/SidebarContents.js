@@ -9,6 +9,7 @@ const SidebarContents = (props) => {
                 auth={props.auth} createNewList={props.createNewList} 
                 undo={props.undo} redo={props.redo} 
                 activeid={props.activeid}
+                activeList={props.activeList}
             />
             <SidebarList
                 activeid={props.activeid} handleSetActive={props.handleSetActive}

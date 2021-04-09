@@ -59,13 +59,20 @@ const Homescreen = (props) => {
 		const { loading, error, data } = await refetch({variables: {_id: _id}});
 		if (data) {
 			todolists = data.getAllTodos;
-			setActiveList((activeList) => {
-				if (activeList._id) {
-					let tempID = activeList._id;
-					let list = todolists.find(list => list._id === tempID);
-					return list;
-				}
-			})
+			if (activeList._id) {
+				setActiveList((activeList) => {
+					if (activeList._id) {
+						let tempID = activeList._id;
+						let list = todolists.find(list => list._id === tempID);
+						return list;
+					}
+				})
+		}
+			// if (activeList._id) {
+			// 	let tempID = activeList._id;
+			// 	let list = todolists.find(list => list._id === tempID);
+			// 	setActiveList(list);
+			// }
 			return true;
 		}
 		return false;
@@ -318,6 +325,7 @@ const Homescreen = (props) => {
 								handleSetActive={handleSetActive} createNewList={createNewList}
 								undo={tpsUndo} redo={tpsRedo}
 								updateListField={updateListField}
+								activeList={activeList}
 							/>
 							:
 							<></>
