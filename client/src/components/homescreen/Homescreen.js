@@ -28,7 +28,6 @@ const Homescreen = (props) => {
 	const [showCreate, toggleShowCreate] 	= useState(false);
 	const [hasUndo, setCanUndo] 			= useState(false);
     const [hasRedo, setCanRedo] 			= useState(false);
-	const [update, forceUpdate]				= useState(false);
 
 	const [ReorderTodoItems] 		= useMutation(mutations.REORDER_ITEMS);
 	const [UpdateTodoItemField] 	= useMutation(mutations.UPDATE_ITEM_FIELD);
@@ -60,12 +59,13 @@ const Homescreen = (props) => {
 		const { loading, error, data } = await refetch({variables: {_id: _id}});
 		if (data) {
 			todolists = data.getAllTodos;
-			if (activeList._id) {
-				let tempID = activeList._id;
-				let list = todolists.find(list => list._id === tempID);
-				setActiveList(list);
-				
-			}
+			setActiveList((activeList) => {
+				if (activeList._id) {
+					let tempID = activeList._id;
+					let list = todolists.find(list => list._id === tempID);
+					return list;
+				}
+			})
 			return true;
 		}
 		return false;
@@ -283,7 +283,6 @@ const Homescreen = (props) => {
 		console.log("yeah");
 		if (event.ctrlKey && event.key == "z") {
 		  tpsUndo();
-		  forceUpdate(!update);
 		}
 		if (event.ctrlKey && event.key == "y") {
 		  tpsRedo();
