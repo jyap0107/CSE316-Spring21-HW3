@@ -37,10 +37,12 @@ const Homescreen = (props) => {
 	const [AddTodolist] 			= useMutation(mutations.ADD_TODOLIST);
 	const [AddTodoItem] 			= useMutation(mutations.ADD_ITEM);
 	const [SortCols]				= useMutation(mutations.SORT_COLS);
+	
+	
 	useEffect(() => {
-		window.addEventListener('keydown', handleKeyPress);
-		return window.removeEventListener('keydown', handleKeyPress);
-		}, [props.tps.mostRecentTransaction])
+		document.addEventListener('keydown', (handleKeyPress));
+		return () => document.removeEventListener('keydown', handleKeyPress);
+		})
 	// const [ActiveListTop]			= useMutation(mutations.ACTIVE_LIST_TOP);
 
 
@@ -59,6 +61,7 @@ const Homescreen = (props) => {
 		const { loading, error, data } = await refetch({variables: {_id: _id}});
 		if (data) {
 			todolists = data.getAllTodos;
+			// If called via a transaction
 			if (_id == "trans") {
 				setActiveList((activeList) => {
 					if (activeList._id) {
@@ -68,13 +71,11 @@ const Homescreen = (props) => {
 					}
 				})
 			}
-			else {
-			if (activeList._id) {
-				let tempID = activeList._id;
-				let list = todolists.find(list => list._id === tempID);
-				setActiveList(list);
-			}
-			}
+				if (activeList._id) {
+					let tempID = activeList._id;
+					let list = todolists.find(list => list._id === tempID);
+					setActiveList(list);
+				}
 			return true;
 		}
 		return false;
@@ -287,9 +288,7 @@ const Homescreen = (props) => {
 		if (checkRedo) setCanRedo(true);
 		else setCanRedo(false);
 	}
-	const handleKeyPress = (event) => {
-
-		console.log("yeah");
+	const handleKeyPress = async (event) => {
 		if (event.ctrlKey && event.key == "z") {
 		  tpsUndo();
 		}
@@ -297,6 +296,12 @@ const Homescreen = (props) => {
 		  tpsRedo();
 		}
 	  }
+	const handleLogOut = async () => {
+		props.tps.clearAllTransactions();
+		handleSetUndo();
+		handleSetRedo();
+	}
+	
 
 	return (
 		<WLayout wLayout="header-lside" onKeyDown={handleKeyPress}
@@ -313,6 +318,7 @@ const Homescreen = (props) => {
 							fetchUser={props.fetchUser} auth={auth} 
 							setShowCreate={setShowCreate} setShowLogin={setShowLogin}
 							refetchTodos={refetch} setActiveList={setActiveList}
+							handleLogOut={handleLogOut}
 						/>
 					</ul>
 				</WNavbar>
