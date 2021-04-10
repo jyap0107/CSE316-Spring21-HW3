@@ -59,7 +59,7 @@ const Homescreen = (props) => {
 		const { loading, error, data } = await refetch({variables: {_id: _id}});
 		if (data) {
 			todolists = data.getAllTodos;
-			if (activeList._id) {
+			if (_id == "trans") {
 				setActiveList((activeList) => {
 					if (activeList._id) {
 						let tempID = activeList._id;
@@ -67,12 +67,14 @@ const Homescreen = (props) => {
 						return list;
 					}
 				})
-		}
-			// if (activeList._id) {
-			// 	let tempID = activeList._id;
-			// 	let list = todolists.find(list => list._id === tempID);
-			// 	setActiveList(list);
-			// }
+			}
+			else {
+				if (activeList._id) {
+					let tempID = activeList._id;
+					let list = todolists.find(list => list._id === tempID);
+					setActiveList(list);
+				}
+			}
 			return true;
 		}
 		return false;
@@ -81,7 +83,7 @@ const Homescreen = (props) => {
 	const tpsUndo = async () => {
 		console.log("Undo called.");
 		const retVal = await props.tps.undoTransaction();
-		refetchTodos(refetch);
+		refetchTodos(refetch, "trans");
 		handleSetUndo();
 		handleSetRedo();
 		return retVal;
@@ -90,7 +92,7 @@ const Homescreen = (props) => {
 	const tpsRedo = async () => {
 		console.log("Redo called.");
 		const retVal = await props.tps.doTransaction();
-		refetchTodos(refetch);
+		refetchTodos(refetch, "trans");
 		handleSetUndo();
 		handleSetRedo();
 		return retVal;
