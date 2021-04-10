@@ -263,6 +263,7 @@ export class jsTPS {
             let transaction = this.transactions[this.mostRecentTransaction];
 			retVal = await transaction.undoTransaction();
             this.mostRecentTransaction--;
+            console.log(this.mostRecentTransaction);
 			this.performingUndo = false;
         }
         console.log('transactions: ' + this.getSize());

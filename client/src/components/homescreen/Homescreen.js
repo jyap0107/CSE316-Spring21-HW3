@@ -39,8 +39,8 @@ const Homescreen = (props) => {
 	const [SortCols]				= useMutation(mutations.SORT_COLS);
 	useEffect(() => {
 		window.addEventListener('keydown', handleKeyPress);
-		return () => window.removeEventListener('keydown', handleKeyPress);
-		}, [props.tps])
+		return window.removeEventListener('keydown', handleKeyPress);
+		}, [props.tps.mostRecentTransaction])
 	// const [ActiveListTop]			= useMutation(mutations.ACTIVE_LIST_TOP);
 
 
@@ -69,11 +69,11 @@ const Homescreen = (props) => {
 				})
 			}
 			else {
-				if (activeList._id) {
-					let tempID = activeList._id;
-					let list = todolists.find(list => list._id === tempID);
-					setActiveList(list);
-				}
+			if (activeList._id) {
+				let tempID = activeList._id;
+				let list = todolists.find(list => list._id === tempID);
+				setActiveList(list);
+			}
 			}
 			return true;
 		}
@@ -121,8 +121,8 @@ const Homescreen = (props) => {
 		let transaction = new UpdateListItems_Transaction(listID, itemID, newItem, opcode, AddTodoItem, DeleteTodoItem);
 		const retVal = await props.tps.addTransaction(transaction);
 		await tpsRedo();
-		handleSetUndo();
-		handleSetRedo();
+		await handleSetUndo();
+		await handleSetRedo();
 	};
     /*
 	Takes in a given item to delete, as well as the active list ID and the item ID.
@@ -275,13 +275,13 @@ const Homescreen = (props) => {
 		toggleShowLogin(false);
 		toggleShowDelete(!showDelete)
 	}
-	const handleSetUndo = () => {
+	const handleSetUndo = async () => {
 		const checkUndo = props.tps.hasTransactionToUndo();
 		if (checkUndo) setCanUndo(true);
 		else setCanUndo(false);
 
 	}
-	const handleSetRedo = () => {
+	const handleSetRedo = async () => {
 		const checkRedo = props.tps.hasTransactionToRedo();
 		console.log(checkRedo);
 		if (checkRedo) setCanRedo(true);
