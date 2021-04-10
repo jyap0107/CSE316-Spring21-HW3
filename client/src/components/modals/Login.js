@@ -34,17 +34,17 @@ const Login = (props) => {
 		};
 	};
 	const handleKeyPress = (e) => {
-		if (e.key === "Enter") {
-			console.log("Whoop")
-			handleLogin();
-		}
+		// if (e.key === "Enter") {
+		// 	console.log("Whoop")
+		// 	handleLogin();
+		// }
 	}
 
 
 	return (
         // Replace div with WModal
 
-		<WModal visible={isVisible} className="login-modal" onKeyPress={handleKeyPress}>
+		<WModal visible={isVisible} className="login-modal" onKeyPress={(e) => e.key == "Enter" ? handleLogin : handleKeyPress}>
 			<WMHeader className="modal-header" onClose={() => props.setShowLogin(false)}>
 				Login
 			</WMHeader>
